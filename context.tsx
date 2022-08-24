@@ -4,7 +4,7 @@ import {
   ALGO_WalletConnect as WalletConnect,
 } from "@reach-sh/stdlib";
 // @ts-ignore
-import * as backend from "./smartcontract/build/index.main.mjs";
+import * as backend from "./build/index.main.mjs";
 import { useRouter } from "next/router.js";
 let i = 1;
 
