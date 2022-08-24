@@ -3,7 +3,7 @@ import {
   loadStdlib,
   ALGO_WalletConnect as WalletConnect,
 } from "@reach-sh/stdlib";
-import * as backend from "../smartcontract/build/index.main.mjs";
+// import * as backend from "../smartcontract/build/index.main.mjs";
 import Cards from "../NAWA/Assets/cards";
 import Hero from "../NAWA/Assets/Hero";
 import Reviews from "../NAWA/Assets/Reviews";
