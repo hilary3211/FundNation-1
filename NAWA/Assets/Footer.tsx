@@ -1,5 +1,4 @@
 import React from "react";
-import logo from "../image/kickstarter logo.png"
 function Footer() {
   return (
     <div>
@@ -9,7 +8,7 @@ function Footer() {
             <img
               alt="zuri"
               className="footer-logo"
-              src={logo} width='150px'
+              src={"/kickstarter logo.png"} width='150px'
             />
           </div>
 
