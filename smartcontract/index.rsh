@@ -21,9 +21,9 @@ const DEFAULT_FUND = Object({
 export const main = Reach.App(() => {
   setOptions({ untrustworthyMaps: true, connectors: [ALGO] });
   const A = Participant("Deployer", { notify: Fun([], Null) });
-  const randomFunc = API("randomFunc", {
-    informTimeout: Fun([], Bool),
-  });
+  // const randomFunc = API("randomFunc", {
+  //   informTimeout: Fun([], Bool),
+  // });
   const Fund = API("raiser", {
     raiseFund: Fun([name, description, amount], Bool),
     addToFund: Fun([Address, amount], Null),
@@ -113,11 +113,7 @@ export const main = Reach.App(() => {
       }
     )
 
-    .timeout(relativeTime(DEADLINE), () => {
-      const [[], k] = call(randomFunc.informTimeout);
-      k(true);
-      return [bal, noOfP];
-    });
+    .timeout(false);
 
   transfer(balance()).to(A);
   commit();

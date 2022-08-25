@@ -13,7 +13,7 @@ import * as backend from "./build/index.main.mjs";
 import { useRouter } from "next/router.js";
 let i = 1;
 
-const ctcInfo = { type: "BigNumber", hex: "0x065997f1" };
+const ctcInfo = { type: "BigNumber", hex: "0x065a9368" };
 // @ts-ignore
 const reach = loadStdlib("ALGO");
 
@@ -108,6 +108,7 @@ export const AppProvider = ({ children }: PropsWithChildren) => {
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("Hello" as any);
   const [view, setView] = useState<modalType>("none");
+  const router = useRouter();
   const [Api, setApi] = useState(
     {} as {
       raiseFund: (
@@ -166,7 +167,6 @@ export const AppProvider = ({ children }: PropsWithChildren) => {
   const DisconnectWallet = async () => {
     window.localStorage.removeItem("walletconnect");
     setIsConnected(false);
-    const router = useRouter();
     router.reload();
   };
 
@@ -247,11 +247,11 @@ export const AppProvider = ({ children }: PropsWithChildren) => {
     console.log({ whenHappen });
   }, [whenHappen]);
 
-  useEffect(() => {
-    if (isConnected && Api.acc) {
-      call();
-    }
-  }, [Api]);
+  // useEffect(() => {
+  //   if (isConnected && Api.acc) {
+  //     call();
+  //   }
+  // }, [Api]);
     useEffect(() => {
      console.log({data})
     }, [data]);
