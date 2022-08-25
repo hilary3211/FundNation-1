@@ -1,4 +1,9 @@
-import React, { PropsWithChildren, useContext, useState } from "react";
+import React, {
+  PropsWithChildren,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import {
   loadStdlib,
   ALGO_WalletConnect as WalletConnect,
@@ -8,7 +13,7 @@ import * as backend from "./build/index.main.mjs";
 import { useRouter } from "next/router.js";
 let i = 1;
 
-const ctcInfo = { type: "BigNumber", hex: "0x0658ed08" };
+const ctcInfo = { type: "BigNumber", hex: "0x065997f1" };
 // @ts-ignore
 const reach = loadStdlib("ALGO");
 
@@ -31,9 +36,25 @@ const AppContext = React.createContext(
     modalMessage: any;
     setModalMessage: React.Dispatch<any>;
     view: modalType;
+    setData: React.Dispatch<
+      React.SetStateAction<
+        {
+          raise_amount: number;
+          project_name: string;
+          project_desc: string;
+          amount_raised: number;
+          owner: string;
+        }[]
+      >
+    >;
+    data: {
+      raise_amount: any;
+      project_name: string;
+      project_desc: string;
+      amount_raised: any;
+      owner: string;
+    }[];
     setView: React.Dispatch<React.SetStateAction<modalType>>;
-    isOpen: boolean;
-    setOpen: React.Dispatch<React.SetStateAction<boolean>>;
     createAsyncTimeout: (
       seconds: number,
       executable?: () => any
@@ -56,6 +77,7 @@ const AppContext = React.createContext(
       addToFund: (address: string, amount: number) => Promise<any>;
       getBalance: () => Promise<number | any>;
       displayBalance: () => Promise<void>;
+      getLog: () => () => Promise<any>;
       acc: any;
     };
     turnOffPopup: (seconds: number, executable?: () => any) => Promise<void>;
@@ -64,14 +86,28 @@ const AppContext = React.createContext(
   }
 );
 export const AppProvider = ({ children }: PropsWithChildren) => {
+  const [whenHappen, setWhenHappen] = useState(0);
   const [isConnected, setIsConnected] = useState(false);
-  const [contractInfo, setContractInfo] = useState("" as string);
+  const [data, setData] = useState([
+    {
+      raise_amount: 0,
+      project_name: "hello",
+      project_desc: "",
+      amount_raised: 0,
+      owner: "",
+    },
+  ] as {
+    raise_amount: number;
+    project_name: string;
+    project_desc: string;
+    amount_raised: number;
+    owner: string;
+  }[]);
   const [state, setState] = useState({});
   const [wallet, setWallet] = useState({} as any);
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("Hello" as any);
   const [view, setView] = useState<modalType>("none");
-  const [isOpen, setOpen] = useState(false);
   const [Api, setApi] = useState(
     {} as {
       raiseFund: (
@@ -81,7 +117,7 @@ export const AppProvider = ({ children }: PropsWithChildren) => {
       ) => Promise<any>;
       addToFund: (address: string, amount: number) => Promise<any>;
       getBalance: () => Promise<number | any>;
-      getLog: (f: any) => () => Promise<any>;
+      getLog: () => () => Promise<any>;
       displayBalance: () => Promise<void>;
       acc: any;
     }
@@ -150,11 +186,11 @@ export const AppProvider = ({ children }: PropsWithChildren) => {
     ) => {
       try {
         // const pay = reach.parseCurrency();
-        const res = await ctc().apis.raiser.raiseFund({
+        const res = await ctc().apis.raiser.raiseFund(
           name,
           description,
-          amount,
-        });
+          amount
+        );
         console.log(res);
         return res;
       } catch (error) {
@@ -184,10 +220,17 @@ export const AppProvider = ({ children }: PropsWithChildren) => {
       console.log(`s balance: ${reach.formatCurrency(bal, 4)}`);
     };
 
-    const getLog = (f: any) => async () => {
-      const { when, what } = await ctc().e.notify.send.next();
+    const getLog = () => async () => {
+      const eventData = await ctc().e.notify.send.next();
+      const { when, what } = eventData;
       const lastTime = await ctc().e.notify.send.lastTime();
-      console.log("what", what);
+      // console.log(eventData);
+      if (whenHappen == parseInt(when)) {
+        setWhenHappen(parseInt(when));
+        return [];
+      }
+      // console.log({ what: what, when: parseInt(when), lastTime: parseInt(lastTime)});
+      setWhenHappen(parseInt(when));
       return what;
     };
 
@@ -199,6 +242,48 @@ export const AppProvider = ({ children }: PropsWithChildren) => {
       acc,
       getLog,
     };
+  };
+  useEffect(() => {
+    console.log({ whenHappen });
+  }, [whenHappen]);
+
+  useEffect(() => {
+    if (isConnected && Api.acc) {
+      call();
+    }
+  }, [Api]);
+    useEffect(() => {
+     console.log({data})
+    }, [data]);
+
+  const call = async () => {
+    let loopContinue = !!Api;
+    while (loopContinue) {
+      const log:
+        | {
+            raise_amount: number;
+            project_name: string;
+            project_desc: string;
+            amount_raised: number;
+            owner: string;
+          }[]
+        | [] = await Api.getLog()();
+      // @ts-ignore
+      // displayMessage(true, <Loading text={"The Game Ended in a Draw"} />);
+      // await turnOffPopup(3);
+      console.log({ log });
+      if (
+        log[0]?.owner == data[0]?.owner &&
+        log[0]?.project_name == data[0]?.project_name
+      ) {
+        console.log("same Data");
+        // return;
+      } else {
+        console.log("Different data");
+        setData([ log[0],...data]);
+      }
+      await createAsyncTimeout(10);
+    }
   };
 
   const deploy = async (acc: any) => {
@@ -215,7 +300,7 @@ export const AppProvider = ({ children }: PropsWithChildren) => {
         }),
       ]);
       await createAsyncTimeout(90);
-      setContractInfo(await ctc.getInfo());
+      // setContractInfo(await ctc.getInfo());
       console.log(await ctc.getInfo());
     } catch (error) {
       console.log({ error });
@@ -247,12 +332,12 @@ export const AppProvider = ({ children }: PropsWithChildren) => {
         showModal,
         setShowModal,
         view,
-        isOpen,
-        setOpen,
         setView,
         displayMessage,
         isConnected,
         setIsConnected,
+        data,
+        setData,
       }}
     >
       {children}

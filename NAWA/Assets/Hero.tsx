@@ -11,7 +11,7 @@ function Hero() {
 
   return (
     <section className="hero-container">
-     <Nav  />
+     {/* <Nav  /> */}
       <div className="hero">
         <h2>Raise and Invest</h2>
         <p>

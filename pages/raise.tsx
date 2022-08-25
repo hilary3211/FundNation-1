@@ -24,6 +24,7 @@ function Send() {
         true,
         <Loading text={"Currently creating Fund Please Wait"} />
       );
+      console.log(Api)
       await Api.raiseFund(name, description, amount);
     } catch (error) {
       console.log(error);
@@ -40,7 +41,6 @@ function Send() {
 
   return (
     <Layout className="hero-container">
-      <Nav />
       <AnimatePresence>
         <div className={styles.raise}>
           <form className={styles.form}>
@@ -55,7 +55,7 @@ function Send() {
             <input
               className={styles.input}
               required
-              onChange={(e: any) => setAmount(e.target.value)}
+              onChange={(e: any) => setAmount(Number(e.target.value))}
               type="number"
               // value={amount}
               placeholder="How much do you need to raise"
