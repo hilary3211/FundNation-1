@@ -62,7 +62,7 @@ const Fund = ({ posts }: { posts: any }) => {
     (async()=>{
       if(!isConnected){
         await connectWallet()
-        setEvent("")
+        setEvent("some")
       } 
     })();
   },[])
@@ -98,7 +98,7 @@ const Fund = ({ posts }: { posts: any }) => {
         <input
           className={styles.btn}
           type={"button"}
-          value="Submit"
+          value="Donate"
           onClick={() => handleSubmit(address)}
         />
       </div>
