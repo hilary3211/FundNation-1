@@ -33,7 +33,7 @@ section {
   display: block;
 }
 .hero-container {
-  height: 650px;
+  min-height: 650px;
   background-image: url("https://zuri.team/img/hero-bg.svg");
   background-size: cover;
   background-position: center center;

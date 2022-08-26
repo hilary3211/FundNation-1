@@ -3,14 +3,11 @@
   > div {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    // background: red;
+    gap: 1rem;
     padding: 2rem;
     width: max(70vw, 300px);
     min-height: 300px;
     margin: auto;
-    display: flex;
-
-    // background: #000;
   }
 }
 .card {

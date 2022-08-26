@@ -5,11 +5,14 @@ import styles from "../styles/raise.module.scss";
 import { useGlobalContext } from "../context";
 import Nav from "../Components/Nav";
 import Loading from "../Components/Loading";
+import { useRouter } from "next/router";
 function Send() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState(0);
-  const { wallet, displayMessage, Api, connectWallet } = useGlobalContext();
+  const { wallet, displayMessage, Api, connectWallet, createAsyncTimeout } =
+    useGlobalContext();
+  const router = useRouter();
   // Handles input change event and updates state
   async function handleClick(event: Event) {
     event.preventDefault();
@@ -24,8 +27,12 @@ function Send() {
         true,
         <Loading text={"Currently creating Fund Please Wait"} />
       );
-      console.log(Api)
       await Api.raiseFund(name, description, amount);
+      displayMessage(false);
+      await createAsyncTimeout(2);
+      displayMessage(true, <Loading text={"Fund Created, redirecting to fund Page"} />);
+      await createAsyncTimeout(2);
+      router.push("/fund");
     } catch (error) {
       console.log(error);
       displayMessage(

@@ -12,10 +12,19 @@ import {
 import * as backend from "./build/index.main.mjs";
 import { useRouter } from "next/router.js";
 let i = 1;
+let j = 0;
 
 const ctcInfo = { type: "BigNumber", hex: "0x065a9368" };
 // @ts-ignore
 const reach = loadStdlib("ALGO");
+let eventData = [
+  {
+    owner: "",
+    project_name: "",
+    project_desc: "string",
+    amount_raised: 1,
+  },
+];
 
 reach.setWalletFallback(
   reach.walletFallback({
@@ -77,6 +86,7 @@ const AppContext = React.createContext(
       addToFund: (address: string, amount: number) => Promise<any>;
       getBalance: () => Promise<number | any>;
       displayBalance: () => Promise<void>;
+      ctc:any;
       getLog: () => () => Promise<any>;
       acc: any;
     };
@@ -120,6 +130,7 @@ export const AppProvider = ({ children }: PropsWithChildren) => {
       getBalance: () => Promise<number | any>;
       getLog: () => () => Promise<any>;
       displayBalance: () => Promise<void>;
+      ctc:any;
       acc: any;
     }
   );
@@ -172,12 +183,11 @@ export const AppProvider = ({ children }: PropsWithChildren) => {
 
   const FUND = async () => {
     const acc = await reach.getDefaultAccount();
-    const ctc = () =>
-      acc.contract(
-        backend,
-        // @ts-ignore
-        reach.bigNumberToNumber(ctcInfo)
-      );
+    const ctc = acc.contract(
+      backend,
+      // @ts-ignore
+      reach.bigNumberToNumber(ctcInfo)
+    );
 
     const raiseFund = async (
       name: string,
@@ -186,11 +196,7 @@ export const AppProvider = ({ children }: PropsWithChildren) => {
     ) => {
       try {
         // const pay = reach.parseCurrency();
-        const res = await ctc().apis.raiser.raiseFund(
-          name,
-          description,
-          amount
-        );
+        const res = await ctc.apis.raiser.raiseFund(name, description, amount);
         console.log(res);
         return res;
       } catch (error) {
@@ -202,7 +208,7 @@ export const AppProvider = ({ children }: PropsWithChildren) => {
     const addToFund = async (address: string, amount: number) => {
       try {
         const rf = reach.parseCurrency(amount);
-        const res = await ctc().apis.raiser.addToFund(address, rf);
+        const res = await ctc.apis.raiser.addToFund(address, rf);
         console.log(res);
         return res;
       } catch (error) {
@@ -221,14 +227,15 @@ export const AppProvider = ({ children }: PropsWithChildren) => {
     };
 
     const getLog = () => async () => {
-      const eventData = await ctc().e.notify.send.next();
+      const eventData = await ctc.e.notify.send.next();
+
       const { when, what } = eventData;
-      const lastTime = await ctc().e.notify.send.lastTime();
-      // console.log(eventData);
-      if (whenHappen == parseInt(when)) {
-        setWhenHappen(parseInt(when));
-        return [];
-      }
+      const lastTime = await ctc.e.notify.send.lastTime();
+      console.log({ what });
+      // if (whenHappen == parseInt(when)) {
+      //   setWhenHappen(parseInt(when));
+      //   return [];
+      // }
       // console.log({ what: what, when: parseInt(when), lastTime: parseInt(lastTime)});
       setWhenHappen(parseInt(when));
       return what;
@@ -239,6 +246,7 @@ export const AppProvider = ({ children }: PropsWithChildren) => {
       addToFund,
       getBalance,
       displayBalance,
+      ctc,
       acc,
       getLog,
     };
@@ -252,39 +260,42 @@ export const AppProvider = ({ children }: PropsWithChildren) => {
   //     call();
   //   }
   // }, [Api]);
-    useEffect(() => {
-     console.log({data})
-    }, [data]);
+  useEffect(() => {
+    console.log({ data });
+  }, [data]);
 
-  const call = async () => {
-    let loopContinue = !!Api;
-    while (loopContinue) {
-      const log:
-        | {
-            raise_amount: number;
-            project_name: string;
-            project_desc: string;
-            amount_raised: number;
-            owner: string;
-          }[]
-        | [] = await Api.getLog()();
-      // @ts-ignore
-      // displayMessage(true, <Loading text={"The Game Ended in a Draw"} />);
-      // await turnOffPopup(3);
-      console.log({ log });
-      if (
-        log[0]?.owner == data[0]?.owner &&
-        log[0]?.project_name == data[0]?.project_name
-      ) {
-        console.log("same Data");
-        // return;
-      } else {
-        console.log("Different data");
-        setData([ log[0],...data]);
-      }
-      await createAsyncTimeout(10);
-    }
-  };
+  // const call = async () => {
+  //   let loopContinue = !!Api;
+  //   while (loopContinue && j<10) {
+  //     const log:
+  //       | {
+  //           raise_amount: number;
+  //           project_name: string;
+  //           project_desc: string;
+  //           amount_raised: number;
+  //           owner: string;
+  //         }[]
+  //       | [] = await Api.getLog()();
+  //     // @ts-ignore
+      
+  //     console.log({ log });
+  //     if (
+  //       log[0]?.owner == eventData[0]?.owner &&
+  //       log[0]?.project_name == eventData[0]?.project_name
+  //     ) {
+  //       console.log("same Data");
+  //       // setData([...data])
+  //       // return;
+  //     } else {
+  //       eventData.push(log[0]);
+  //       console.log("Different data");
+  //       // @ts-ignore
+  //       setData([...eventData]);
+  //     }
+  //     j++
+  //     // await createAsyncTimeout(10);
+  //   }
+  // };
 
   const deploy = async (acc: any) => {
     try {

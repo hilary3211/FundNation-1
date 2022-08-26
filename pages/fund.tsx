@@ -2,24 +2,74 @@ import React, { useEffect, useState } from "react";
 import styles from "../styles/fund.module.scss";
 import Layout from "../Components/Layout";
 import { useGlobalContext } from "../context";
-// import { fetchDb } from '../helpers';
-// export async function getStaticProps() {
-//   // Call an external API endpoint to get posts
-//   const res = await fetchDb();
-//   // Pass posts data to the page via props
-//   return {
-//     props: {
-//       posts: JSON.stringify(res),
-//     },
-//   };
-// }
+
+type dataType = {
+  raise_amount: number;
+  project_name: string;
+  project_desc: string;
+  amount_raised: number;
+  owner: string;
+}[];
+
 const Fund = ({ posts }: { posts: any }) => {
-  const { data, isConnected, Api, displayMessage, createAsyncTimeout } =
+  const { isConnected,connectWallet, Api, displayMessage, createAsyncTimeout } =
     useGlobalContext();
   const [amount, setamount] = useState(0);
+  const [data, setData] = useState<dataType>([
+    {
+      raise_amount: 0,
+      project_name: "",
+      project_desc: "",
+      amount_raised: 0,
+      owner: "",
+    },
+  ]);
+  const [event, setEvent] = useState("" as any);
   useEffect(() => {
     console.log(amount);
   }, [amount]);
+
+  useEffect(() => {
+    (async () => {
+      if (isConnected) {
+        try {
+          console.log("Tryig");
+          await Api.ctc.e.notify.send.monitor((e: any) => {
+            setEvent(e);
+            setData((prev) => {
+              const newmap = prev?.map((item) => {
+                const { owner } = item;
+                console.log({ owner });
+                // console.log({index, p:e.what[0].index})
+                // @ts-ignore
+                // if (!(parseInt(index) === parseInt(e.what[0].index))) {
+                return item;
+                // }
+              });
+              return [e.what[0], ...newmap];
+            });
+            console.log(e);
+          });
+        } catch (error) {
+          setEvent("");
+          console.log(error);
+        }
+      }
+    })();
+  }, [event]);
+
+  useEffect(()=>{
+    (async()=>{
+      if(!isConnected){
+        await connectWallet()
+        setEvent("")
+      } 
+    })();
+  },[])
+
+  useEffect(() => {
+    console.log(data);
+  }, data);
 
   const handleClick = (owner: string) => {
     displayMessage(true, <Input address={owner} />);
@@ -29,7 +79,7 @@ const Fund = ({ posts }: { posts: any }) => {
       displayMessage(false);
       await createAsyncTimeout(1);
       displayMessage(true, "Attempting to Donate");
-      await Api.addToFund(address, amount??1);
+      await Api.addToFund(address, amount ?? 1);
       displayMessage(false);
       await createAsyncTimeout(1);
       displayMessage(true, "Successfully donated");
@@ -62,16 +112,21 @@ const Fund = ({ posts }: { posts: any }) => {
             { amount_raised, owner, project_desc, project_name, raise_amount },
             index
           ) => {
-            if (index == data.length - 1)
-              return (
-                <div
-                  key={index}
-                  style={{ textAlign: "center", width: "100vw" }}
-                >
-                  {!isConnected &&
-                    "Connect Wallet to see Available projects to fund"}
-                </div>
-              );
+            if (index == data.length -1) return;
+            {
+              isConnected ? (
+                <>
+                  <div
+                    key={index}
+                    style={{ textAlign: "center", width: "100vw" }}
+                  >
+                    {!isConnected &&
+                      "Connect Wallet to see Available projects to fund"}
+                  </div>
+                </>
+              ) : null;
+            }
+
             return (
               <div className={styles.card} key={index}>
                 <h2>{project_name.replace(/\0/g, "")}</h2>
@@ -92,10 +147,12 @@ const Fund = ({ posts }: { posts: any }) => {
                 </span>
                 <span>
                   <div>Amount seeking</div>
+                  {/* @ts-ignore */}
                   {parseInt(raise_amount)}
                 </span>
                 <span>
                   <div>Amount raised</div>
+                  {/* @ts-ignore */}
                   {parseInt(amount_raised)}
                 </span>
 
