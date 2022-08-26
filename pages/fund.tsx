@@ -42,9 +42,9 @@ const Fund = ({ posts }: { posts: any }) => {
                 console.log({ owner });
                 // console.log({index, p:e.what[0].index})
                 // @ts-ignore
-                // if (!(parseInt(index) === parseInt(e.what[0].index))) {
+                if (!(owner === (e.what[0].owner))) {
                 return item;
-                // }
+                }
               });
               return [e.what[0], ...newmap];
             });
