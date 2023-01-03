@@ -12,8 +12,13 @@ type dataType = {
 }[];
 
 const Fund = ({ posts }: { posts: any }) => {
-  const { isConnected,connectWallet, Api, displayMessage, createAsyncTimeout } =
-    useGlobalContext();
+  const {
+    isConnected,
+    connectWallet,
+    Api,
+    displayMessage,
+    createAsyncTimeout,
+  } = useGlobalContext();
   const [amount, setamount] = useState(0);
   const [data, setData] = useState<dataType>([
     {
@@ -42,8 +47,8 @@ const Fund = ({ posts }: { posts: any }) => {
                 console.log({ owner });
                 // console.log({index, p:e.what[0].index})
                 // @ts-ignore
-                if (!(owner === (e.what[0].owner))) {
-                return item;
+                if (!(owner === e.what[0].owner)) {
+                  return item;
                 }
               });
               return [e.what[0], ...newmap];
@@ -58,14 +63,14 @@ const Fund = ({ posts }: { posts: any }) => {
     })();
   }, [event]);
 
-  useEffect(()=>{
-    (async()=>{
-      if(!isConnected){
-        await connectWallet()
-        setEvent("some")
-      } 
+  useEffect(() => {
+    (async () => {
+      if (!isConnected) {
+        await connectWallet();
+        setEvent("some");
+      }
     })();
-  },[])
+  }, []);
 
   useEffect(() => {
     console.log(data);
@@ -83,6 +88,14 @@ const Fund = ({ posts }: { posts: any }) => {
       displayMessage(false);
       await createAsyncTimeout(1);
       displayMessage(true, "Successfully donated");
+      const newData = data.map((props) => {
+        const { owner } = props;
+        if (owner == address) {
+          return { ...props, amount_raised: props.amount_raised + amount };
+        }
+        return props
+      });
+      setData(newData);
     } catch (error) {
       displayMessage(true, "An error Occured trying to donate");
     }
@@ -112,7 +125,7 @@ const Fund = ({ posts }: { posts: any }) => {
             { amount_raised, owner, project_desc, project_name, raise_amount },
             index
           ) => {
-            if (index == data.length -1) return;
+            if (index == data.length - 1) return;
             {
               isConnected ? (
                 <>

@@ -32,7 +32,10 @@ const Fund = async (info, name = "Unknown") => {
   };
   const addToFund = async (address, amount) => {
     try {
-      const statement = await ctc.apis.raiser.addToFund(address, amount);
+      const statement = await ctc.apis.raiser.addToFund(
+        stdlib.formatAddress(address),
+        stdlib.parseCurrency(amount)
+      );
       console.log(statement);
     } catch (error) {
       console.error(error);
@@ -107,33 +110,11 @@ if (role == "Fund") {
       stdlib.parseCurrency(1000)
     );
     console.log(stdlib.formatAddress(newUSer.acc));
-    await user2.addToFund(
-      stdlib.formatAddress(newUSer.acc),
-      stdlib.parseCurrency(2)
-    );
-    await user2.addToFund(
-      stdlib.formatAddress(newUSer.acc),
-      stdlib.parseCurrency(2)
-    );
-    await user3.addToFund(
-      stdlib.formatAddress(newUSer.acc),
-      stdlib.parseCurrency(10)
-    );
-    "nulFUUSX3IKS45YPKGDHVQFXQX24Q6ONOX2IQ4L5GIK7RUITC5RMC6FLQ3GAMl";
+    await user2.addToFund(newUSer.acc, 2);
+    await user2.addToFund(newUSer.acc, 2);
+    await user3.addToFund(newUSer.acc, 10);
     await stdlib.wait(1);
-    const { amount_raised } = await newUSer.fetch([
-      "Some",
-      ,
-      JSON.stringify(
-        "EK5BWWRXMLOMWYYBXBGEYYGAPPDJDEKSETQ4FR6HUOZTYMQCR3U2MQX2IU"
-      ),
-    ]);
-    console.log({
-      amount_raised: parseInt(stdlib.formatCurrency(amount_raised)),
-    });
-    // await newUSer.
 
-    // Create a map to call all
   } catch (error) {
     console.log(error);
   }

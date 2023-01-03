@@ -6,8 +6,6 @@
 //    - How much you need
 //    - Project name
 //    - Project Description
-const TOTAL = 1;
-const DEADLINE = 2500;
 const name = Bytes(12);
 const description = Bytes(280);
 const amount = UInt;
@@ -21,9 +19,7 @@ const DEFAULT_FUND = Object({
 export const main = Reach.App(() => {
   setOptions({ untrustworthyMaps: true, connectors: [ALGO] });
   const A = Participant("Deployer", { notify: Fun([], Null) });
-  // const randomFunc = API("randomFunc", {
-  //   informTimeout: Fun([], Bool),
-  // });
+
   const Fund = API("raiser", {
     raiseFund: Fun([name, description, amount], Bool),
     addToFund: Fun([Address, amount], Null),
@@ -48,7 +44,6 @@ export const main = Reach.App(() => {
     project_desc: description.pad(""),
     owner: this,
   };
-  const startArr = Array.replicate(TOTAL, start);
 
   const [bal, noOfP] = parallelReduce([0, 0])
     .invariant(balance() == bal)
@@ -112,6 +107,7 @@ export const main = Reach.App(() => {
         return [bal, noOfP];
       }
     )
+    
 
     .timeout(false);
 

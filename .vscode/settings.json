@@ -2,5 +2,16 @@
     "files.associations": {
         "*.rsh": "javascript"
     },
-    "javascript.suggest.completeFunctionCalls": true
+    "javascript.suggest.completeFunctionCalls": true,
+    "grammarly.selectors": [
+        {
+            "language": "markdown",
+            "scheme": "file",
+            "pattern": "/home/prince/Documents/Hacks/Umoja/Umoja-Hack3/Workshop.md"
+        },
+        {
+            "language": "markdown",
+            "scheme": "file"
+        }
+    ]
 }
